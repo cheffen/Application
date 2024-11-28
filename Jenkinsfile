@@ -1,17 +1,17 @@
 pipeline {
     agent {
         kubernetes {
-            label "weather-app-agent"
+            label "music app"
             idleMinutes 5
             yamlFile 'build-pod.yaml'
             defaultContainer 'ez-docker-helm-build'
         }
     }
     environment {
-        DOCKER_IMAGE = 'winterzone2/weather-app'
+        DOCKER_IMAGE = 'cheffen/music-site'
         GITHUB_API_URL = 'https://api.github.com'
-        GITHUB_REPO = 'DaryAkerman/weather-app'
-        GITHUB_TOKEN = credentials('github-token')
+        GITHUB_REPO = 'cheffen/Application'
+        GITHUB_TOKEN = credentials('guthub-api')
     }
 
     stages {
@@ -50,7 +50,7 @@ pipeline {
             }
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-creds') {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
                         dockerImage.push("latest")
                         dockerImage.push("1.0.${env.BUILD_NUMBER}")
                     }
@@ -63,9 +63,9 @@ pipeline {
                 branch 'main'
             }
             steps {
-                withCredentials([string(credentialsId: 'github-secret', variable: 'GITHUB_TOKEN')]) {
+                withCredentials([string(credentialsId: 'guthub-api', variable: 'GITHUB_TOKEN')]) {
                     script {
-                        def valuesFilePath = "applic/values.yaml"
+                        def valuesFilePath = "music-site/values.yaml"
                         def valuesYaml = readFile(valuesFilePath)
                         def updatedYaml = valuesYaml.replaceAll(/(?<=tag: ).*/, "\"1.0.${env.BUILD_NUMBER}\"")
                         writeFile(file: valuesFilePath, text: updatedYaml)
@@ -88,7 +88,7 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                withCredentials([string(credentialsId: 'guthub-api', variable: 'GITHUB_TOKEN')]) {
                     script {
                         def branchName = env.BRANCH_NAME
                         def pullRequestTitle = "Merge ${branchName} into main"
