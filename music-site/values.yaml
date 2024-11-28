@@ -3,7 +3,7 @@ namespace: music-site
 mongodb:
   image:
     repository: mongo
-    tag: "1.0.33"
+    tag: "1.0.35"
   replicas: 1
   storage:
     size: "5Gi"
@@ -11,6 +11,6 @@ mongodb:
 app:
   image:
     repository: cheffen/music-site
-    tag: "1.0.33"
+    tag: "1.0.35"
   replicas: 2
   secretKey: "your_secure_secret_key"
