@@ -74,9 +74,9 @@ pipeline {
                                 git rebase origin/master
                             """
                             
-                            // Push changes to remote master
+                            // Push changes to remote master using HEAD:master to handle detached HEAD
                             sh """
-                                git push https://${GITHUB_TOKEN}@github.com/cheffen/Application.git master
+                                git push https://${GITHUB_TOKEN}@github.com/cheffen/Application.git HEAD:master
                             """
                         } else {
                             echo "File not found: ${valuesFilePath}. Skipping update."
