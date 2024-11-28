@@ -3,7 +3,7 @@ namespace: music-site
 mongodb:
   image:
     repository: mongo
-    tag: "6.0" # Updated to a valid MongoDB version
+    tag: "1.0.29"
   replicas: 1
   storage:
     size: "5Gi"
@@ -11,6 +11,6 @@ mongodb:
 app:
   image:
     repository: cheffen/music-site
-    tag: "1.0.13" # Application image tag remains unchanged
+    tag: "1.0.29"
   replicas: 2
   secretKey: "your_secure_secret_key"
