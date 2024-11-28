@@ -46,7 +46,10 @@ pipeline {
 
         stage('Push Docker image') {
             when {
-                branch 'main'
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
             }
             steps {
                 script {
@@ -60,7 +63,10 @@ pipeline {
 
         stage('Update Helm values.yaml') {
             when {
-                branch 'main'
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
             }
             steps {
                 withCredentials([string(credentialsId: 'guthub-api', variable: 'GITHUB_TOKEN')]) {
@@ -84,23 +90,27 @@ pipeline {
         stage('Create merge request') {
             when {
                 not {
-                    branch 'main'
+                    anyOf {
+                        branch 'main'
+                        branch 'master'
+                    }
                 }
             }
             steps {
                 withCredentials([string(credentialsId: 'guthub-api', variable: 'GITHUB_TOKEN')]) {
                     script {
                         def branchName = env.BRANCH_NAME
-                        def pullRequestTitle = "Merge ${branchName} into main"
+                        def baseBranch = "main" // Change to "master" if necessary
+                        def pullRequestTitle = "Merge ${branchName} into ${baseBranch}"
                         def pullRequestBody = "Automatically generated merge request for branch ${branchName}"
 
                         sh """
-                            curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
+                            curl -X POST -H "Authorization: token ${GITHUB_TOKEN.toString()}" \
                             -d '{
                                 "title": "${pullRequestTitle}",
                                 "body": "${pullRequestBody}",
                                 "head": "${branchName}",
-                                "base": "main"
+                                "base": "${baseBranch}"
                             }' \
                             ${GITHUB_API_URL}/repos/${GITHUB_REPO}/pulls
                         """
