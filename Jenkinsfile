@@ -9,7 +9,7 @@ pipeline {
         DOCKER_IMAGE = "cheffen/music-site"
         IMAGE_TAG = "1.0.${env.BUILD_NUMBER}"
         DOCKER_CREDENTIAL_ID = 'dockerhub' // Ensure this ID matches your Jenkins credentials
-        GITHUB_TOKEN_ID = 'guthub-api' // Ensure this ID matches your Jenkins credentials
+        GITHUB_TOKEN_ID = 'github-api' // Ensure this ID matches your Jenkins credentials
     }
     stages {
         stage('Checkout SCM') {
@@ -55,12 +55,28 @@ pipeline {
                             def valuesYaml = readFile(valuesFilePath)
                             def updatedYaml = valuesYaml.replaceAll(/(?<=tag: ).*/, "\"${IMAGE_TAG}\"")
                             writeFile(file: valuesFilePath, text: updatedYaml)
+                            
+                            // Configure Git user
                             sh """
                                 git config user.name "Jenkins CI"
                                 git config user.email "jenkins@example.com"
+                            """
+                            
+                            // Stage and commit changes
+                            sh """
                                 git add ${valuesFilePath}
                                 git commit -m "[skip-ci] Update Helm chart image tag to ${IMAGE_TAG}"
-                                git push https://${GITHUB_TOKEN}@github.com/cheffen/Application.git HEAD:refs/heads/master
+                            """
+                            
+                            // Fetch latest changes from remote master
+                            sh """
+                                git fetch origin master
+                                git rebase origin/master
+                            """
+                            
+                            // Push changes to remote master
+                            sh """
+                                git push https://${GITHUB_TOKEN}@github.com/cheffen/Application.git master
                             """
                         } else {
                             echo "File not found: ${valuesFilePath}. Skipping update."
@@ -71,21 +87,7 @@ pipeline {
         }
         stage('Create Merge Request') {
             steps {
-                withCredentials([string(credentialsId: "${GITHUB_TOKEN_ID}", variable: 'GITHUB_TOKEN')]) {
-                    script {
-                        def createPRPayload = """
-                            {
-                                "title": "Update Helm Chart to ${IMAGE_TAG}",
-                                "body": "This PR updates the Helm chart image tag to ${IMAGE_TAG}",
-                                "head": "master",
-                                "base": "master"
-                            }
-                        """
-                        sh """
-                            curl -X POST -H 'Authorization: token ${GITHUB_TOKEN}' -H 'Content-Type: application/json' -d '${createPRPayload}' https://api.github.com/repos/cheffen/Application/pulls
-                        """
-                    }
-                }
+                echo "Stage 'Create Merge Request' skipped because pushing directly to master."
             }
         }
     }
