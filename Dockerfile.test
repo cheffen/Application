@@ -1,0 +1,32 @@
+# Dockerfile.test
+
+# Use the same base image as the app
+FROM python:3.10-slim
+
+# Set environment variables to prevent Python from writing .pyc files and buffering stdout/stderr
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the requirements file into the container
+COPY requirements.txt .
+
+# Install application and testing dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir pytest pytest-cov
+
+# Copy the rest of the application code into the container
+COPY . .
+
+# Ensure the test upload directory exists
+RUN mkdir -p test_static/images
+
+# Set environment variables for testing
+ENV FLASK_APP=app.py
+ENV MONGO_URI=mongodb://mongo:27017/test_artist_db
+ENV PYTHONPATH=/app  
+
+# Default command to run tests
+CMD ["pytest", "tests/"]

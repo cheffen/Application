@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Music Site</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Welcome to the Music Site</h1>
+    <div class="artists-grid">
+        {% for artist in artists %}
+        <div class="artist-card">
+            <div class="image-container">
+                <img src="{{ url_for('uploaded_file', filename=artist.image) }}" alt="{{ artist.name }}">
+            </div>
+            <h3><a href="{{ url_for('artist', artist_id=artist._id) }}">{{ artist.name }}</a></h3>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

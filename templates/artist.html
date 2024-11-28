@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ artist.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>{{ artist.name }}</h1>
+    <div class="artist-details">
+        <div class="image-container">
+            <img src="{{ url_for('uploaded_file', filename=artist.image) }}" alt="{{ artist.name }}">
+        </div>
+        <p>Genre: {{ artist.genre }}</p>
+        <p>{{ artist.bio }}</p>
+    </div>
+    <h2>Songs</h2>
+    <ul>
+        {% for song in artist.songs %}
+        <li>{{ song.title }} - <a href="{{ song.link }}" target="_blank">Listen</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: music-project
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.com/sela-tracks/1109/students/diland/final-project/application/app.git
+    targetRevision: HEAD
+    path: ./music-site
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true

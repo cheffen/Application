@@ -1,0 +1,44 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/artist_db
+      - FLASK_ENV=development
+    volumes:
+      - ./static/images:/app/static/images
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  mongo:
+    image: mongo:5.0
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/test_artist_db
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./static/images:/app/static/images
+      - ./tests:/app/tests
+
+volumes:
+  mongo_data:
