@@ -1,14 +1,24 @@
 namespace: music-site
 mongodb:
   image:
+<<<<<<< HEAD
     repository: mongo
     tag: "6.0" # Updated to a valid MongoDB version
+=======
+    repository: mongo # Use the official MongoDB image
+    tag: "1.0.21"
+>>>>>>> d92cf9340428769e3043ebbd25728cbf3c0befbb
   replicas: 1
   storage:
     size: 5Gi
 app:
   image:
+<<<<<<< HEAD
     repository: cheffen/music-site
     tag: "1.0.13" # Application image tag remains unchanged
+=======
+    repository: cheffen/music-site # Your application image repository
+    tag: "1.0.21"
+>>>>>>> d92cf9340428769e3043ebbd25728cbf3c0befbb
   replicas: 2
   secretKey: your_secure_secret_key  
