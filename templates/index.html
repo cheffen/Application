@@ -1,21 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Music Site</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <h1>Welcome to the Music Site</h1>
-    <div class="artists-grid">
-        {% for artist in artists %}
-        <div class="artist-card">
-            <div class="image-container">
-                <img src="{{ url_for('uploaded_file', filename=artist.image) }}" alt="{{ artist.name }}">
-            </div>
-            <h3><a href="{{ url_for('artist', artist_id=artist._id) }}">{{ artist.name }}</a></h3>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero">
+    <h2>Discover Amazing Artists</h2>
+    <p>Explore a curated collection of talented musicians and their incredible stories</p>
+</div>
+
+<div class="artists-grid">
+    {% for artist in artists %}
+    <div class="artist-card">
+        <div class="image-container">
+            <img src="{{ url_for('uploaded_file', filename=artist.image) }}" alt="{{ artist.name }}">
         </div>
-        {% endfor %}
+        <h3><a href="{{ url_for('artist', artist_id=artist._id) }}">{{ artist.name }}</a></h3>
     </div>
-</body>
-</html>
+    {% endfor %}
+
+    <div class="add-artist-card">
+        <a href="{{ url_for('add_artist') }}">
+            <div class="add-artist-content">
+                <i class="fas fa-plus"></i>
+                <h3>Add New Artist</h3>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}
