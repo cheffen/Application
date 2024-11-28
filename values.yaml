@@ -1,0 +1,118 @@
+# Jenkins URL configuration
+jenkinsUrl: "http://localhost:8080"
+
+# Controller configuration
+controller:
+  serviceType: NodePort
+
+# Install required plugins
+installPlugins:
+  - octopusdeploy
+  - kubernetes
+  - workflow-aggregator
+  - git
+  - configuration-as-code
+  - gitlab-plugin
+  - blueocean
+  - workflow-multibranch
+  - login-theme
+  - prometheus
+  - github-oauth
+  - apache-httpcomponents-client-4-api
+  - apache-httpcomponents-client-5-api
+  - asm
+  - authentication-tokens
+  - bootstrap5-api
+  - bouncycastle-api
+  - branch-api
+  - caffeine-api
+  - checks-api
+  - cloud-stats
+  - commons-compress-api
+  - commons-lang3-api
+  - commons-text-api
+  - credentials-binding
+  - credentials
+  - display-url-api
+  - docker-api
+  - docker-commons
+  - docker-workflow
+  - docker-plugin
+  - durable-task
+  - echarts-api
+  - eddsa-api
+  - cloudbees-folder
+  - font-awesome-api
+  - git-client
+  - gitlab-api
+  - gson
+  - instance-identity
+  - ionicons-api
+  - jackson2-api
+  - jakarta-activation-api
+  - jakarta-mail-api
+  - jaxb
+  - jersey2-api
+  - joda-time
+  - jquery3-api
+  - jsch
+  - json-api
+  - json-path
+  - junit
+  - kubernetes-client-api
+  - kubernetes-credentials
+  - mailer
+  - matrix-project
+  - metrics
+  - mina-sshd-api
+  - okhttp-api
+  - antisamy-markup-formatter
+  - pipeline-utility-steps
+  - pipeline-model-definition
+  - pipeline-model-extensions
+  - pipeline-groovy-lib
+  - pipeline-input-step
+  - pipeline-milestone-step
+  - pipeline-stage-step
+  - pipeline-stage-tags-metadata
+  - plain-credentials
+  - plugin-util-api
+  - prism-api
+  - resource-disposer
+  - scm-api
+  - script-security
+  - snakeyaml-api
+  - ssh-agent
+  - ssh-credentials
+  - ssh-slaves
+  - structs
+  - token-macro
+  - trilead-api
+  - variant
+  - ws-cleanup
+
+# Agent configuration
+agent:
+  enabled: true
+  jnlpPort: 50000
+
+# Jenkins Configuration as Code (JCasC)
+JCasC:
+  configScripts:
+    agentConfig: |
+      jenkins:
+        clouds:
+          - kubernetes:
+              name: "kubernetes"
+              templates:
+                - name: "jenkins-agent"
+                  label: "jenkins-agent"
+                  nodeUsageMode: "NORMAL"
+                  containers:
+                    - name: "jnlp"
+                      image: "jenkins/inbound-agent:latest"
+                      args: ["${computer.jnlpmac}", "${computer.name}"]
+                      resourceRequestCpu: "500m"
+                      resourceRequestMemory: "512Mi"
+                      resourceLimitCpu: "1"
+                      resourceLimitMemory: "1Gi"
