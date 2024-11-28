@@ -29,7 +29,7 @@ pipeline {
                         echo "Skipping build due to commit message: ${commitMessage}"
                         error("Build aborted due to [skip-ci] in commit message.") 
                     }
-                    
+
                     echo "Proceeding with build. Commit message: ${commitMessage}"
                 }
             }
@@ -74,7 +74,7 @@ pipeline {
                             git config user.email "jenkins@example.com"
                             git add ${valuesFilePath}
                             git commit -m "[skip-ci] Update Helm chart image tag to 1.0.${env.BUILD_NUMBER}"
-                            git push https://$GITHUB_TOKEN@github.com/${GITHUB_REPO}.git HEAD:main
+                            git push https://${GITHUB_TOKEN}@github.com/${GITHUB_REPO}.git HEAD:main
                         """
                     }
                 }
@@ -96,7 +96,12 @@ pipeline {
 
                         sh """
                             curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
-                            -d '{ "title": "${pullRequestTitle}", "body": "${pullRequestBody}", "head": "${branchName}", "base": "main" }' \
+                            -d '{
+                                "title": "${pullRequestTitle}",
+                                "body": "${pullRequestBody}",
+                                "head": "${branchName}",
+                                "base": "main"
+                            }' \
                             ${GITHUB_API_URL}/repos/${GITHUB_REPO}/pulls
                         """
                     }
