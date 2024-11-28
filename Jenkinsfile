@@ -9,7 +9,7 @@ pipeline {
         DOCKER_IMAGE = "cheffen/music-site"
         IMAGE_TAG = "1.0.${env.BUILD_NUMBER}"
         DOCKER_CREDENTIAL_ID = 'dockerhub'
-        GITHUB_TOKEN_ID = 'github-token'
+        GITHUB_TOKEN_ID = 'guthub-api'
     }
     stages {
         stage('Checkout SCM') {
