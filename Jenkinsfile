@@ -53,7 +53,10 @@ pipeline {
                         if (fileExists(valuesFilePath)) {
                             echo "Updating Helm values.yaml..."
                             def valuesYaml = readFile(valuesFilePath)
-                            def updatedYaml = valuesYaml.replaceAll(/(?<=tag: ).*/, "\"${IMAGE_TAG}\"")
+                            
+                            // Only replace the app.image.tag line
+                            def updatedYaml = valuesYaml.replaceAll(/(?m)^(\s*app:\s*\n\s*image:\s*tag:\s*)".*"/, "\$1\"${IMAGE_TAG}\"")
+                            
                             writeFile(file: valuesFilePath, text: updatedYaml)
                             
                             // Configure Git user
