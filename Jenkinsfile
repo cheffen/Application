@@ -8,8 +8,8 @@ pipeline {
     environment {
         DOCKER_IMAGE = "cheffen/music-site"
         IMAGE_TAG = "1.0.${env.BUILD_NUMBER}"
-        DOCKER_CREDENTIAL_ID = 'dockerhub'
-        GITHUB_TOKEN_ID = 'guthub-api'
+        DOCKER_CREDENTIAL_ID = 'dockerhub' // Ensure this ID matches your Jenkins credentials
+        GITHUB_TOKEN_ID = 'github-token' // Ensure this ID matches your Jenkins credentials
     }
     stages {
         stage('Checkout SCM') {
@@ -33,7 +33,10 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 container('ez-docker-helm-build') {
-                    withDockerRegistry(credentialsId: "${DOCKER_CREDENTIAL_ID}", url: 'https://registry.hub.docker.com') {
+                    withDockerRegistry([ 
+                        credentialsId: "${DOCKER_CREDENTIAL_ID}", 
+                        url: 'https://index.docker.io/v1/' 
+                    ]) {
                         sh """
                             docker push ${DOCKER_IMAGE}:latest
                             docker push ${DOCKER_IMAGE}:${IMAGE_TAG}
@@ -75,11 +78,11 @@ pipeline {
                                 "title": "Update Helm Chart to ${IMAGE_TAG}",
                                 "body": "This PR updates the Helm chart image tag to ${IMAGE_TAG}",
                                 "head": "master",
-                                "base": "main"
+                                "base": "master"
                             }
                         """
                         sh """
-                            curl -X POST -H 'Authorization: token ${GITHUB_TOKEN}' -d '${createPRPayload}' https://api.github.com/repos/cheffen/Application/pulls
+                            curl -X POST -H 'Authorization: token ${GITHUB_TOKEN}' -H 'Content-Type: application/json' -d '${createPRPayload}' https://api.github.com/repos/cheffen/Application/pulls
                         """
                     }
                 }
