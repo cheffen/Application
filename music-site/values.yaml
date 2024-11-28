@@ -11,6 +11,10 @@ mongodb:
 app:
   image:
     repository: cheffen/music-site
+<<<<<<< HEAD
     tag: "1.0.14" # Updated to the new IMAGE_TAG
+=======
+    tag: "1.0.48" # Updated to the new IMAGE_TAG
+>>>>>>> 21a91c12627b72dc8e741d3781e05219eef84aaf
   replicas: 2
   secretKey: "your_secure_secret_key"
