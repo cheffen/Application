@@ -14,8 +14,17 @@ pipeline {
     stages {
         stage('Checkout SCM') {
             steps {
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [
+                        [$class: 'LocalBranch', localBranch: 'master']
+                    ],
+                    userRemoteConfigs: [[url: 'https://github.com/cheffen/Application.git', credentialsId: 'dockerhub']]
+                ])
                 script {
+                    // Ensure Git considers the workspace as safe
                     sh "git config --global --add safe.directory ${WORKSPACE}"
                 }
             }
@@ -52,35 +61,43 @@ pipeline {
                         def valuesFilePath = "music-site/values.yaml"
                         if (fileExists(valuesFilePath)) {
                             echo "Updating Helm values.yaml..."
-                            def valuesYaml = readFile(valuesFilePath)
                             
-                            // Only replace the app.image.tag line
-                            def updatedYaml = valuesYaml.replaceAll(/(?m)^(\s*app:\s*\n\s*image:\s*tag:\s*)".*"/, "\$1\"${IMAGE_TAG}\"")
-                            
-                            writeFile(file: valuesFilePath, text: updatedYaml)
-                            
-                            // Configure Git user
+                            // Update only the app.image.tag using sed
                             sh """
-                                git config user.name "Jenkins CI"
-                                git config user.email "jenkins@example.com"
+                                sed -i '/^\\s*app:\\s*$/,/^\\s*image:/ {/^\\s*tag:/s/"[^"]*"/"${IMAGE_TAG}"/}' ${valuesFilePath}
                             """
                             
-                            // Stage and commit changes
-                            sh """
-                                git add ${valuesFilePath}
-                                git commit -m "[skip-ci] Update Helm chart image tag to ${IMAGE_TAG}"
-                            """
+                            // Check if values.yaml was modified
+                            def changes = sh(script: "git diff --exit-code ${valuesFilePath}", returnStatus: true)
                             
-                            // Fetch latest changes from remote master
-                            sh """
-                                git fetch origin master
-                                git rebase origin/master
-                            """
-                            
-                            // Push changes to remote master using HEAD:master to handle detached HEAD
-                            sh """
-                                git push https://${GITHUB_TOKEN}@github.com/cheffen/Application.git HEAD:master
-                            """
+                            if (changes != 0) {
+                                echo "Changes detected in ${valuesFilePath}, committing..."
+                                
+                                // Configure Git user
+                                sh """
+                                    git config user.name "Jenkins CI"
+                                    git config user.email "jenkins@example.com"
+                                """
+                                
+                                // Stage and commit changes
+                                sh """
+                                    git add ${valuesFilePath}
+                                    git commit -m "[skip-ci] Update Helm chart image tag to ${IMAGE_TAG}"
+                                """
+                                
+                                // Fetch latest changes from remote master and rebase
+                                sh """
+                                    git fetch origin master
+                                    git rebase origin/master
+                                """
+                                
+                                // Push changes to remote master
+                                sh """
+                                    git push https://${GITHUB_TOKEN}@github.com/cheffen/Application.git master
+                                """
+                            } else {
+                                echo "No changes detected in ${valuesFilePath}. Skipping commit and push."
+                            }
                         } else {
                             echo "File not found: ${valuesFilePath}. Skipping update."
                         }
