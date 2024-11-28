@@ -65,7 +65,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'guthub-api', variable: 'GITHUB_TOKEN')]) {
                     script {
-                        def valuesFilePath = "applic/values.yaml"
+                        def valuesFilePath = "music-site/values.yaml"
                         def valuesYaml = readFile(valuesFilePath)
                         def updatedYaml = valuesYaml.replaceAll(/(?<=tag: ).*/, "\"1.0.${env.BUILD_NUMBER}\"")
                         writeFile(file: valuesFilePath, text: updatedYaml)
